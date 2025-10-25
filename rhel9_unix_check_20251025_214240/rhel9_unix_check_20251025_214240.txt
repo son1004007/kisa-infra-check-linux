@@ -1,0 +1,507 @@
+TIME   : 2025-10-25 21:42:40
+CODE   : U-01
+TITLE  : root 계정 원격 접속 제한
+STATUS : PASS
+DETAIL :
+sshd_config: PermitRootLogin = without-password
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:40
+CODE   : U-02
+TITLE  : 패스워드 복잡성 설정
+STATUS : FAIL
+DETAIL :
+minlen=unset (recommend >=8). Check /etc/security/pwquality.conf and /etc/pam.d/*
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:40
+CODE   : U-03
+TITLE  : 계정 잠금 임계값 설정
+STATUS : FAIL
+DETAIL :
+Invalid or missing deny in /etc/security/faillock.conf
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:40
+CODE   : U-04
+TITLE  : /etc/shadow 파일 보호
+STATUS : PASS
+DETAIL :
+----------. 1 root root 1046  9월 23 17:43 /etc/shadow
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:40
+CODE   : U-05
+TITLE  : root 홈·패스 권한 및 PATH
+STATUS : PASS
+DETAIL :
+root PATH looks OK: /root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:41
+CODE   : U-13
+TITLE  : SUID/SGID 파일 점검
+STATUS : INFO
+DETAIL :
+SUID sample:\n/usr/bin/chage
+/usr/bin/gpasswd
+/usr/bin/newgrp
+/usr/bin/fusermount3
+/usr/bin/mount
+/usr/bin/umount
+/usr/bin/fusermount
+/usr/bin/sudo
+/usr/bin/su
+/usr/bin/crontab
+/usr/bin/pkexec
+/usr/bin/vmware-user-suid-wrapper
+/usr/bin/at
+/usr/bin/passwd
+/usr/bin/chfn
+/usr/bin/chsh
+/usr/sbin/grub2-set-bootflag
+/usr/sbin/pam_timestamp_check
+/usr/sbin/unix_chkpwd
+/usr/lib/polkit-1/polkit-agent-helper-1
+/usr/libexec/Xorg.wrap
+/usr/libexec/sssd/krb5_child
+/usr/libexec/sssd/ldap_child
+/usr/libexec/sssd/selinux_child
+/usr/libexec/sssd/proxy_child
+/usr/libexec/dbus-1/dbus-daemon-launch-helper\nSGID sample:\n/usr/bin/write
+/usr/bin/locate
+/usr/sbin/lockdev
+/usr/libexec/utempter/utempter
+/usr/libexec/openssh/ssh-keysign
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:41
+CODE   : U-17
+TITLE  : .rhosts/hosts.equiv 사용금지
+STATUS : PASS
+DETAIL :
+No .rhosts/hosts.equiv under /root or /home
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:42
+CODE   : U-19
+TITLE  : Finger 서비스 비활성화
+STATUS : PASS
+DETAIL :
+Finger service not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:42
+CODE   : U-20
+TITLE  : Anonymous FTP 비활성화
+STATUS : PASS
+DETAIL :
+vsftpd not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-21
+TITLE  : r-commands 비활성화
+STATUS : PASS
+DETAIL :
+No r-commands units present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-22
+TITLE  : NFS 접근제어
+STATUS : PASS
+DETAIL :
+nfs-utils not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-24
+TITLE  : DNS zone transfer 제한
+STATUS : PASS
+DETAIL :
+named not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-25
+TITLE  : Sendmail 정보 숨김
+STATUS : PASS
+DETAIL :
+sendmail not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-26
+TITLE  : SNMP community string 변경
+STATUS : PASS
+DETAIL :
+net-snmp not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-27
+TITLE  : Apache 디렉터리 리스팅 금지
+STATUS : PASS
+DETAIL :
+httpd not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-28
+TITLE  : Apache 서비스 정보 숨김
+STATUS : PASS
+DETAIL :
+httpd not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-29
+TITLE  : Apache 접근 로그 설정
+STATUS : PASS
+DETAIL :
+httpd not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:43
+CODE   : U-30
+TITLE  : Web 디렉터리 권한 제한
+STATUS : PASS
+DETAIL :
+httpd not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:45
+CODE   : U-31
+TITLE  : 기타 데몬 비활성화(tftp.socket)
+STATUS : PASS
+DETAIL :
+tftp.socket not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:46
+CODE   : U-31
+TITLE  : 기타 데몬 비활성화(tftp)
+STATUS : PASS
+DETAIL :
+tftp not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:47
+CODE   : U-31
+TITLE  : 기타 데몬 비활성화(talkd)
+STATUS : PASS
+DETAIL :
+talkd not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:48
+CODE   : U-31
+TITLE  : 기타 데몬 비활성화(telnet.socket)
+STATUS : PASS
+DETAIL :
+telnet.socket not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:49
+CODE   : U-31
+TITLE  : 기타 데몬 비활성화(talk.socket)
+STATUS : PASS
+DETAIL :
+talk.socket not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-32
+TITLE  : Telnet 비활성화
+STATUS : PASS
+DETAIL :
+telnet not present
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-33
+TITLE  : inetd/xinetd 설정 파일 권한
+STATUS : PASS
+DETAIL :
+xinetd not used
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-35
+TITLE  : RPC/portmap 서비스 관리
+STATUS : PASS
+DETAIL :
+rpcbind inactive or not installed
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-38
+TITLE  : at/cron 접근제어
+STATUS : INFO
+DETAIL :
+at.allow/deny exist: -rw-r--r--. 1 root root 1  8월  6 03:34 /etc/at.deny
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-40
+TITLE  : X11 Forwarding 비활성화
+STATUS : WARN
+DETAIL :
+X11Forwarding=yes
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:50
+CODE   : U-41
+TITLE  : TCP Wrappers 설정 확인
+STATUS : WARN
+DETAIL :
+No /etc/hosts.allow/deny
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-62
+TITLE  : 보안 패치 적용현황
+STATUS : INFO
+DETAIL :
+Security updates (dnf):\n마지막 메타자료 만료확인(1:24:04 이전): 2025년 10월 25일 (토) 오후 08시 18분 47초.
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-64
+TITLE  : 자동 업데이트 설정 여부
+STATUS : WARN
+DETAIL :
+/etc/dnf/automatic.conf not found
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-63
+TITLE  : 패치 관리 절차 수립
+STATUS : WARN
+DETAIL :
+Procedural item: verify patch management process and records (not automatable here)
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-65
+TITLE  : syslog/rsyslog 설정 확인
+STATUS : INFO
+DETAIL :
+/etc/rsyslog.conf snippet:\n# rsyslog configuration file
+
+# For more information see /usr/share/doc/rsyslog-*/rsyslog_conf.html
+# or latest version online at http://www.rsyslog.com/doc/rsyslog_conf.html 
+# If you experience problems, see http://www.rsyslog.com/doc/troubleshoot.html
+
+#### GLOBAL DIRECTIVES ####
+
+# Where to place auxiliary files
+global(workDirectory="/var/lib/rsyslog")
+
+# Use default timestamp format
+module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat")
+
+#### MODULES ####
+
+module(load="imuxsock" 	  # provides support for local system logging (e.g. via logger command)
+       SysSock.Use="off") # Turn off message reception via local log socket; 
+			  # local messages are retrieved through imjournal now.
+module(load="imjournal" 	    # provides access to the systemd journal
+       UsePid="system" # PID nummber is retrieved as the ID of the process the journal entry originates from
+       FileCreateMode="0644" # Set the access permissions for the state file
+       StateFile="imjournal.state") # File to store the position in the journal
+#module(load="imklog") # reads kernel messages (the same are read from journald)
+#module(load="immark") # provides --MARK-- message capability
+
+# Include all config files in /etc/rsyslog.d/
+include(file="/etc/rsyslog.d/*.conf" mode="optional")
+
+# Provides UDP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imudp.html
+#module(load="imudp") # needs to be done just once
+#input(type="imudp" port="514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+#module(load="imtcp") # needs to be done just once
+#input(type="imtcp" port="514")
+
+#### RULES ####
+
+# Log all kernel messages to the console.
+# Logging much else clutters up the screen.
+#kern.*                                                 /dev/console
+
+# Log anything (except mail) of level info or higher.
+# Don't log private authentication messages!
+*.info;mail.none;authpriv.none;cron.none                /var/log/messages
+
+# The authpriv file has restricted access.
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-66
+TITLE  : 로그 파일 접근 권한
+STATUS : INFO
+DETAIL :
+/var/log perms: drwxr-xr-x. 22 root root 4096 10월 25 21:11 /var/log; sample logs:\n합계 3620
+lrwxrwxrwx. 1 root   root        39  9월 23 17:35 README -> ../../usr/share/doc/systemd/README.logs
+drwxr-xr-x. 2 root   root      4096  9월 23 17:44 anaconda
+drwx------. 2 root   root        23  9월 23 17:45 audit
+-rw-------. 1 root   root         0  9월 25 00:00 boot.log
+-rw-------. 1 root   root     18300  9월 25 00:00 boot.log-20250925
+-rw-rw----. 1 root   utmp      4608 10월 25 20:58 btmp
+-rw-rw----. 1 root   utmp      6144  9월 26 20:44 btmp-20251001
+drwxr-x---. 2 chrony chrony       6  4월 27 20:00 chrony
+drwxr-xr-x. 2 root   root      4096  9월 23 21:13 containers
+-rw-------. 1 root   root     59449 10월 25 21:01 cron
+-rw-------. 1 root   root     40406  9월 27 23:01 cron-20250928
+-rw-------. 1 root   root     59997 10월  4 23:01 cron-20251005
+-rw-------. 1 root   root     59653 10월 11 23:01 cron-20251012
+-rw-------. 1 root   root     59788 10월 18 23:01 cron-20251019
+drwxr-xr-x. 2 lp     sys         57  9월 12 14:09 cups
+-rw-r--r--. 1 root   root    497243 10월 25 21:42 dnf.librepo.log
+-rw-r--r--. 1 root   root    263168 10월 25 21:42 dnf.log
+-rw-r--r--. 1 root   root   1048524 10월 18 17:36 dnf.log.1
+-rw-r--r--. 1 root   root     65996 10월 25 21:42 dnf.rpm.log
+-rw-r-----. 1 root   root         0  9월 23 17:45 firewalld
+drwx--x--x. 2 root   gdm          6  8월  6 03:02 gdm
+-rw-r--r--. 1 root   root      2940 10월 25 21:42 hawkey.log
+-rw-r--r--. 1 root   root      3120  9월 27 23:20 hawkey.log-20250928
+-rw-r--r--. 1 root   root      2640 10월  4 20:56 hawkey.log-20251005
+-rw-r--r--. 1 root   root      2700 10월 11 23:26 hawkey.log-20251012
+-rw-r--r--. 1 root   root      2700 10월 18 22:28 hawkey.log-20251019
+-rw-rw-r--. 1 root   utmp    292292 10월 25 21:42 lastlog
+-rw-------. 1 root   root         0 10월 19 00:00 maillog
+-rw-------. 1 root   root         0  9월 23 17:35 maillog-20250928
+-rw-------. 1 root   root         0  9월 28 00:00 maillog-20251005
+-rw-------. 1 root   root         0 10월  5 00:00 maillog-20251012
+-rw-------. 1 root   root         0 10월 12 00:00 maillog-20251019
+-rw-------. 1 root   root    121869 10월 25 21:42 messages
+-rw-------. 1 root   root    704104  9월 28 00:00 messages-20250928
+-rw-------. 1 root   root    111894 10월  4 23:46 messages-20251005
+-rw-------. 1 root   root    112226 10월 11 23:26 messages-20251012
+-rw-------. 1 root   root    104973 10월 18 23:27 messages-20251019
+drwxr-xr-x. 8 root   root      4096  9월 23 21:13 pods
+drwx------. 2 root   root         6  9월 23 17:35 private
+drwxr-xr-x. 2 root   root         6  9월 17 03:51 qemu-ga
+drwxr-xr-x. 2 root   root       119 10월 25 09:28 rhel9_unix_check_20251025_092744
+drwxr-xr-x. 2 root   root        74 10월 25 09:47 rhel9_unix_check_20251025_094712
+drwxr-xr-x. 2 root   root        74 10월 25 09:48 rhel9_unix_check_20251025_094822
+drwxr-xr-x. 2 root   root        74 10월 25 09:52 rhel9_unix_check_20251025_095222
+drwxr-xr-x. 2 root   root        74 10월 25 09:54 rhel9_unix_check_20251025_095406
+drwxr-xr-x. 2 root   root        74 10월 25 21:01 rhel9_unix_check_20251025_210119
+drwxr-xr-x. 2 root   root       119 10월 25 21:12 rhel9_unix_check_20251025_211148
+drwx------. 3 root   root        17  9월 12 14:27 samba
+-rw-------. 1 root   root     24065 10월 25 21:42 secure
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-67
+TITLE  : 로그 백업/보존 설정
+STATUS : INFO
+DETAIL :
+/etc/logrotate.conf snippet:\n# see "man logrotate" for details
+
+# global options do not affect preceding include directives
+
+# rotate log files weekly
+weekly
+
+# keep 4 weeks worth of backlogs
+rotate 4
+
+# create new (empty) log files after rotating old ones
+create
+
+# use date as a suffix of the rotated file
+dateext
+
+# uncomment this if you want your log files compressed
+#compress
+
+# packages drop log rotation information into this directory
+include /etc/logrotate.d
+
+# system-specific logs may be also be configured here.
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-68
+TITLE  : 로그인 실패 로그 설정
+STATUS : INFO
+DETAIL :
+faillog summary:\n(faillog not installed)\nlastb sample:\nroot     ssh:notty    118.221.43.134   Sat Oct 25 20:58 - 20:58  (00:00)
+root     ssh:notty    118.221.43.134   Sat Oct 25 20:58 - 20:58  (00:00)
+root     ssh:notty    118.221.43.134   Sat Oct 25 20:58 - 20:58  (00:00)
+root     ssh:notty    118.221.43.134   Sat Oct 25 20:58 - 20:58  (00:00)
+root     ssh:notty    118.221.43.134   Sat Oct 25 20:57 - 20:57  (00:00)
+root     ssh:notty    118.221.43.134   Sat Oct 25 20:57 - 20:57  (00:00)
+onycom   ssh:notty    118.221.43.134   Sat Oct 25 09:19 - 09:19  (00:00)
+onycom   ssh:notty    118.221.43.134   Sat Oct 25 09:17 - 09:17  (00:00)
+onycom   ssh:notty    118.221.43.134   Sat Oct 25 09:17 - 09:17  (00:00)
+onycom   ssh:notty    118.221.43.134   Sat Oct 25 09:17 - 09:17  (00:00)
+onycom   ssh:notty    116.84.110.96    Wed Oct 22 20:39 - 20:39  (00:00)
+onycom   ssh:notty    116.84.110.96    Wed Oct 22 20:39 - 20:39  (00:00)
+
+btmp begins Wed Oct 22 20:39:50 2025
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-69
+TITLE  : sudo 명령 로그 설정
+STATUS : WARN
+DETAIL :
+No sudo logfile configured in /etc/sudoers
+----------------------------------------------------------------
+
+TIME   : 2025-10-25 21:42:52
+CODE   : U-70
+TITLE  : auditd 설정
+STATUS : PASS
+DETAIL :
+/etc/audit/auditd.conf snippet:\n#
+# This file controls the configuration of the audit daemon
+#
+
+local_events = yes
+write_logs = yes
+log_file = /var/log/audit/audit.log
+log_group = root
+log_format = ENRICHED
+flush = INCREMENTAL_ASYNC
+freq = 50
+max_log_file = 8
+num_logs = 5
+priority_boost = 4
+name_format = NONE
+##name = mydomain
+max_log_file_action = ROTATE
+space_left = 75
+space_left_action = SYSLOG
+verify_email = yes
+action_mail_acct = root
+admin_space_left = 50
+admin_space_left_action = SUSPEND
+disk_full_action = SUSPEND
+disk_error_action = SUSPEND
+use_libwrap = yes
+##tcp_listen_port = 60
+tcp_listen_queue = 5
+tcp_max_per_addr = 1
+##tcp_client_ports = 1024-65535
+tcp_client_max_idle = 0
+transport = TCP
+krb5_principal = auditd
+##krb5_key_file = /etc/audit/audit.key
+distribute_network = no
+q_depth = 2000
+overflow_action = SYSLOG
+max_restarts = 10
+plugin_dir = /etc/audit/plugins.d
+end_of_event_timeout = 2
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+RHEL9 Unix 취약점 점검 완료 (총 결과 파일: ./rhel9_unix_check_20251025_214240/rhel9_unix_check_20251025_214240.txt)
