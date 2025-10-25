@@ -8,6 +8,13 @@
 # 비고: 읽기전용만 수행합니다. (자동 수정/패치 적용 등은 포함하지 않음)
 
 set -euo pipefail
+
+# 비대화형 환경에서 pager 경고 방지
+export PAGER=cat
+export MANPAGER=cat
+export SYSTEMD_PAGER=cat
+alias systemctl='systemctl --no-pager'
+
 TS=$(date '+%Y%m%d_%H%M%S')
 OUT_DIR="./rhel9_unix_check_${TS}"
 LOG_OUT="${OUT_DIR}/rhel9_unix_check_${TS}.log"
@@ -666,3 +673,37 @@ echo "결과 파일:"
 echo "  - 상세 결과 (TXT): ${RESULT_OUT}"
 echo "  - 요약 로그:       ${LOG_OUT}"
 echo ""
+
+
+# --- 결과 파일 소유자/그룹을 원래 사용자로 변경 ---
+# 이 블록은 sudo로 실행된 경우 SUDO_USER/SUDO_UID/SUDO_GID를 사용하여
+# OUT_DIR(및 그 하위 파일들)의 소유권을 원래 사용자로 되돌립니다.
+
+if [ -n "${SUDO_USER:-}" ] && [ -n "${SUDO_UID:-}" ] && [ -n "${SUDO_GID:-}" ]; then
+  # 안전을 위해 변수 값 확인
+  owner_uid="${SUDO_UID}"
+  owner_gid="${SUDO_GID}"
+  owner_name="${SUDO_USER}"
+
+  # OUT_DIR 변수가 사용 중이어야 함 (스크립트 초반에 설정되어 있음)
+  if [ -n "${OUT_DIR:-}" ] && [ -d "${OUT_DIR}" ]; then
+    printf "INFO: Changing ownership of %s to %s(%s):%s(%s)\n" "${OUT_DIR}" "${owner_name}" "${owner_uid}" "${owner_name}" "${owner_gid}" >> "${LOG_OUT:-/dev/null}" 2>/dev/null
+
+    # 소유자 변경 (재시도 포함하여 실패 시 메시지 출력)
+    if chown -R "${owner_uid}:${owner_gid}" "${OUT_DIR}"; then
+      # 적절한 권한 설정(디렉터리=750, 파일=640 등) - 선택적
+      find "${OUT_DIR}" -type d -exec chmod 750 {} \; 2>/dev/null || true
+      find "${OUT_DIR}" -type f -exec chmod 640 {} \; 2>/dev/null || true
+
+      printf "INFO: Ownership and permissions set for %s\n" "${OUT_DIR}" >> "${LOG_OUT:-/dev/null}" 2>/dev/null
+    else
+      printf "WARN: Failed to chown %s to %s:%s (you may need to run chown manually)\n" "${OUT_DIR}" "${owner_uid}" "${owner_gid}" >> "${LOG_OUT:-/dev/null}" 2>/dev/null
+    fi
+  else
+    printf "WARN: OUT_DIR is not set or does not exist: %s\n" "${OUT_DIR:-<unset>}" >> "${LOG_OUT:-/dev/null}" 2>/dev/null
+  fi
+else
+  # 스크립트를 sudo 없이 실행했거나 SUDO_* 변수가 없을 때
+  printf "INFO: SUDO_USER/SUDO_UID not set; leaving ownership as-is.\n" >> "${LOG_OUT:-/dev/null}" 2>/dev/null
+fi
+# --- end ownership fix ---
