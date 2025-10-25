@@ -49,53 +49,243 @@ emit() {
 
 # get_remediation: code 및 status에 따라 권장 수동 조치 텍스트를 반환
 get_remediation() {
-  local code="$1"
-  local status="$2"
-  local detail="$3"
-
-  # 기본: 아무 조치 없음
-  local remed=""
+  code="$1"
+  status="$2"
+  detail="$3"
+  remed=""
 
   case "$code" in
     U-01)
-      remed="권장 조치:\n  1) /etc/ssh/sshd_config에서 PermitRootLogin을 'no' 또는 'prohibit-password'로 설정\n     예: sudo sed -i -r 's/^\\s*PermitRootLogin\\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config\n  2) sshd 재시작: sudo systemctl restart sshd\n  설명: 루트 계정의 비밀번호 기반 원격 로그인을 차단하여 무차별 대입 공격 위험을 줄입니다."
+      remed="권장 조치:
+  1) /etc/ssh/sshd_config에서 PermitRootLogin을 'no' 또는 'prohibit-password'로 설정
+     예: sudo sed -i -r 's/^\\s*PermitRootLogin\\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config
+  2) sshd 재시작: sudo systemctl restart sshd
+설명: 루트 계정의 비밀번호 기반 원격 로그인을 차단하여 무차별 대입 공격을 줄입니다."
       ;;
     U-02)
-      remed="권장 조치:\n  1) /etc/security/pwquality.conf에서 minlen 값을 8 이상으로 설정\n     예: sudo sed -i -r 's/^\\s*minlen\\s*=.*/minlen = 12/' /etc/security/pwquality.conf\n  2) PAM에 적용되어 있는지 확인: /etc/pam.d/system-auth에서 pam_pwquality.so 옵션 검토\n  설명: 강력한 최소 길이 설정은 비밀번호 추측 위험을 낮춥니다."
+      remed="권장 조치:
+  1) /etc/security/pwquality.conf에서 minlen 값을 8 이상(권장 12)으로 설정
+     예: sudo sed -i -r 's/^\\s*minlen\\s*=.*/minlen = 12/' /etc/security/pwquality.conf || echo 'minlen = 12' | sudo tee -a /etc/security/pwquality.conf
+  2) /etc/pam.d/system-auth 또는 /etc/pam.d/password-auth에서 pam_pwquality.so 옵션(minlen, retry 등) 확인
+  3) 변경 후 테스트: sudo su - <user> && passwd <user> (패스워드 규칙 적용 확인)
+설명: 최소 길이 강화로 비밀번호 추측 위험 감소."
+      ;;
+    U-03)
+      remed="권장 조치:
+  1) /etc/pam.d/* 파일에 pam_faillock.so 모듈 존재 확인 (auth, account 섹션)
+     예: grep -n 'pam_faillock.so' /etc/pam.d/* || true
+  2) /etc/security/faillock.conf 에 deny, unlock_time 설정 (deny=3 권장)
+     예: sudo sed -i -r \"s/^\\s*deny\\s*=.*/deny = 3/\" /etc/security/faillock.conf || echo 'deny = 3' | sudo tee -a /etc/security/faillock.conf
+  3) PAM 변경 후 서비스/세션 재시작(세션 재로그인 필요)
+설명: 반복 실패 시 계정 자동 잠금으로 무차별 공격을 방지합니다."
       ;;
     U-04)
-      remed="권장 조치:\n  1) 소유자 확인 및 권한 설정: sudo chown root:root /etc/shadow; sudo chmod 400 /etc/shadow\n  2) 파일 접근 로그 확인 후, 필요 시 백업 후 권한 변경\n  설명: /etc/shadow는 비밀번호 해시를 포함하므로 엄격한 권한 필요."
+      remed="권장 조치:
+  1) 소유자와 권한 지정: sudo chown root:root /etc/shadow; sudo chmod 400 /etc/shadow
+  2) 파일 소유/권한이 변경되었을 경우 백업에서 복원 또는 관련 패키지 재설치 검토
+설명: /etc/shadow는 해시를 저장하므로 최소권한 필요."
+      ;;
+    U-05)
+      remed="권장 조치:
+  1) root PATH에서 '.' 또는 안전하지 않은 경로 제거
+     예: sudo su - -c \"export PATH=$(echo \$PATH | tr ':' '\\n' | egrep -v '^\\.$' | paste -sd: -)\" (영구 수정은 /root/.bash_profile 등)
+  2) root 프로파일에 불필요한 항목이 있는지 확인: sudo sed -n '1,200p' /root/.bash_profile
+설명: PATH에 '.' 포함 시 현재 디렉토리에서 의도치 않은 실행 위험."
+      ;;
+    U-06|U-07|U-08|U-09|U-10|U-11|U-12)
+      remed="권장 조치:
+  1) 파일/디렉토리의 소유자, 그룹, 권한을 점검하여 정책에 맞게 수정 (예: sudo chown root:root 파일; sudo chmod 644 파일)
+  2) world-writable 파일은 필요 여부 검토 후 권한 변경: sudo chmod o-w <파일>
+  3) 중요 시스템 파일은 패키지 관리자로 복원 고려: rpm -qf <파일> && sudo dnf reinstall -y \$(rpm -qf <파일>)
+설명: 불필요한 쓰기 권한/잘못된 소유권은 권한 상승의 원인이 됩니다."
+      ;;
+    U-13)
+      remed="권장 조치:
+  1) SUID/SGID 파일 목록 확인: find / -xdev -type f -perm -4000 -print
+  2) 불필요한 SUID/SGID 제거: sudo chmod u-s <파일>
+  3) 패키지에서 제공되는 정상 파일은 유지, 직접 설치된 의심 파일은 조사/삭제
+설명: SUID/SGID는 권한 상승 공격 벡터가 될 수 있음."
+      ;;
+    U-14|U-15|U-16|U-17)
+      remed="권장 조치:
+  1) 홈 디렉터리 및 숨김 파일의 권한 확인: sudo find /home -maxdepth 2 -type f -name '.*' -ls
+  2) .rhosts/hosts.equiv 발견 시 삭제: sudo rm -f /home/*/.rhosts /root/.rhosts /etc/hosts.equiv
+  3) 홈 디렉터리 권한 최소화: sudo chmod 700 /home/<user>
+설명: 원격 신뢰 기반 로그인 파일은 제거 권장."
+      ;;
+    U-19)
+      remed="권장 조치:
+  1) finger 서비스가 설치되어 있다면 패키지 제거: sudo dnf remove -y finger
+  2) unit 파일 존재 시 비활성화: sudo systemctl disable --now fingerd || true
+설명: 오래된 서비스는 공격면을 넓힘."
       ;;
     U-20)
-      remed="권장 조치:\n  1) vsftpd 사용 시 /etc/vsftpd/vsftpd.conf에서 anonymous_enable=NO 설정\n     예: sudo sed -i -r 's/^\\s*anonymous_enable\\s*=.*/anonymous_enable=NO/' /etc/vsftpd/vsftpd.conf\n  2) vsftpd 재시작: sudo systemctl restart vsftpd\n  3) FTP 비필요 시: sudo systemctl disable --now vsftpd\n  설명: 익명 FTP는 정보 유출 위험이 큽니다."
+      remed="권장 조치:
+  1) /etc/vsftpd/vsftpd.conf 에서 anonymous_enable=NO 설정
+     예: sudo sed -i -r 's/^\\s*anonymous_enable\\s*=.*/anonymous_enable=NO/' /etc/vsftpd/vsftpd.conf
+  2) vsftpd 중지/비활성화: sudo systemctl disable --now vsftpd
+  3) FTP 불필요 시 패키지 제거: sudo dnf remove -y vsftpd
+설명: 익명 FTP는 정보 유출 위험이 크므로 비활성화 권장."
+      ;;
+    U-21)
+      remed="권장 조치:
+  1) rsh/rlogin/rexec 관련 패키지 제거: sudo dnf remove -y rsh-server rsh
+  2) 관련 서비스 unit 발견 시 비활성화: sudo systemctl disable --now rsh.socket || true
+설명: 레거시 r-commands는 암호화되지 않으므로 제거 권장."
+      ;;
+    U-22|U-23)
+      remed="권장 조치:
+  1) /etc/exports 파일에서 허용 호스트를 명시적으로 지정(와일드카드 * 제거)
+     예: /srv/share 192.0.2.0/24(ro,root_squash)
+  2) 설정 변경 후 exportfs -ra 적용: sudo exportfs -ra
+  3) NFS 필요 없으면 서비스 비활성화/패키지 제거: sudo systemctl disable --now nfs-server; sudo dnf remove -y nfs-utils
+설명: 공개 NFS 공유는 정보 유출 위험."
       ;;
     U-24)
-      remed="권장 조치:\n  1) /etc/named.conf 또는 zone 파일에서 allow-transfer 항목으로 전송 대상 제한\n     예: zone \"example.com\" IN { type master; file \"...\"; allow-transfer { 192.0.2.10; }; }; \n  2) named 재시작: sudo systemctl restart named\n  설명: zone transfer를 제한하여 DNS 존 정보 유출을 방지합니다."
+      remed="권장 조치:
+  1) /etc/named.conf 또는 zone 파일에 allow-transfer로 전송 대상 제한
+     예: zone \"example.com\" IN { type master; file \"...\"; allow-transfer { 192.0.2.10; }; };
+  2) named 재시작: sudo systemctl restart named
+설명: 존 전송 제한으로 DNS 존 정보 유출 방지."
+      ;;
+    U-25)
+      remed="권장 조치:
+  1) sendmail 사용 시 sendmail.cf에서 ServerID/PrivacyOptions/LogLevel 등 설정 조정
+  2) 불필요 시 sendmail 패키지 제거: sudo dnf remove -y sendmail
+설명: 메일 서버는 외부에 과도한 서비스 정보를 노출하지 않도록 설정."
+      ;;
+    U-26)
+      remed="권장 조치:
+  1) /etc/snmp/snmpd.conf에서 기본 community(public/private) 제거 또는 변경
+     예: sudo sed -i -r 's/rocommunity\\s+public/rocommunity myread/' /etc/snmp/snmpd.conf
+  2) snmp 서비스 접근 제어 ACL 적용 또는 서비스 삭제: sudo systemctl disable --now snmpd
+설명: 기본 community는 정보 노출 위험."
+      ;;
+    U-27)
+      remed="권장 조치:
+  1) Apache 설정에서 디렉터리 인덱스 비활성화: <Directory ...> Options -Indexes </Directory>
+  2) 설정 재시작: sudo systemctl restart httpd
+설명: 디렉터리 열람 방지로 파일 노출을 막음."
+      ;;
+    U-28)
+      remed="권장 조치:
+  1) httpd.conf에서 ServerTokens Prod 설정
+  2) 재시작: sudo systemctl restart httpd
+설명: 서비스 배너 노출을 줄여 공격 정보를 어렵게 함."
+      ;;
+    U-29)
+      remed="권장 조치:
+  1) CustomLog/ErrorLog가 존재하는지 확인 및 로그 수집 정책 수립
+  2) Apache 재시작: sudo systemctl restart httpd
+설명: 접근 로그 설정은 사고대응의 기초."
+      ;;
+    U-30)
+      remed="권장 조치:
+  1) 웹루트 권한 최소화: sudo chown -R apache:apache /var/www/html; sudo chmod -R 750 /var/www/html
+  2) 업로드/임시 디렉터리 권한 검토
+설명: 웹 콘텐츠 폴더의 과도한 권한을 제한합니다."
+      ;;
+    U-31|U-32|U-33|U-34|U-35|U-36|U-37|U-38|U-39|U-40|U-41)
+      remed="권장 조치:
+  1) 해당 데몬/서비스가 불필요하면 비활성화 및 제거: sudo systemctl disable --now <service>; sudo dnf remove -y <pkg>
+  2) SSH X11Forwarding 비활성화: sudo sed -i -r 's/^\\s*X11Forwarding\\s+.*/X11Forwarding no/' /etc/ssh/sshd_config; sudo systemctl restart sshd
+  3) hosts.allow/deny 필요 시 정책에 따라 구성
+설명: 불필요 서비스 제거 및 접근제어 적용."
+      ;;
+    U-42)
+      remed="권장 조치:
+  1) dnf를 사용하여 보안 패치 목록 확인: sudo dnf updateinfo list security
+  2) 공지/점검 정책에 따라 패치 적용 주기 수립
+설명: 패치 관리는 사고 예방의 핵심."
+      ;;
+    U-43)
+      remed="권장 조치:
+  1) 각 서비스별 불필요한 데몬 확인 및 비활성화
+  2) 보안 벤치마크(예: CIS) 기준과 대조하여 누락 항목 점검
+설명: 서비스 최소화는 공격면 축소."
+      ;;
+    U-44|U-45|U-46|U-47|U-48|U-49|U-50|U-51|U-52|U-53)
+      remed="권장 조치:
+  1) 불필요한 계정 식별 및 잠금/삭제: sudo usermod -L <user> 또는 sudo userdel <user>
+  2) 관리자 그룹/권한 검토, UID/GID 규칙 준수 확인
+  3) 패스워드 만료 정책 확인(PASS_MAX_DAYS 등)
+설명: 계정 및 권한 관리는 내부 위협 완화에 중요."
+      ;;
+    U-54|U-55|U-56|U-57|U-58|U-59)
+      remed="권장 조치:
+  1) 홈 디렉터리 소유/권한 검토 및 조정 (예: chmod 700)
+  2) umask 기본값 확인 및 /etc/login.defs 또는 /etc/profile에서 필요 시 수정
+  3) 숨김파일/백업파일(.ssh, .rhosts 등) 점검 및 불필요 파일 삭제
+설명: 홈 디렉터리 설정은 권한 오용 위험을 낮춥니다."
       ;;
     U-62)
-      remed="권장 조치:\n  1) 보안 업데이트 목록 확인: sudo dnf updateinfo list security\n  2) 패치 적용(검증 후): sudo dnf update --security -y\n  3) 정기점검·패치 계획 수립 및 롤백 절차 마련\n  설명: 중요한 보안 취약점 패치는 가능한 빨리 적용하세요."
+      remed="권장 조치:
+  1) 보안 업데이트 확인: sudo dnf updateinfo list security
+  2) 중요한 패치 적용: sudo dnf update --security -y (테스트 후 적용)
+  3) 패치 적용 전 백업/롤백 계획 수립
+설명: 보안 패치 즉시 적용 권장."
+      ;;
+    U-63)
+      remed="권장 조치:
+  1) 패치 관리 절차(정책, 책임자, 주기, 테스트/롤백)를 문서화
+  2) 패치 적용 로그/이력 관리 및 보고 체계 수립
+설명: 조직적 절차 수립은 패치 누락 방지에 필수."
+      ;;
+    U-64)
+      remed="권장 조치:
+  1) dnf-automatic 설치 및 설정: sudo dnf install -y dnf-automatic; sudo systemctl enable --now dnf-automatic.timer
+  2) /etc/dnf/automatic.conf에서 자동 보안 업데이트 및 알림 설정 검토
+설명: 보안 업데이트 자동화는 대응 속도를 높입니다."
+      ;;
+    U-65)
+      remed="권장 조치:
+  1) /etc/rsyslog.conf 및 /etc/rsyslog.d/*.conf를 검토하여 중앙로그 전송/필터링 설정 적용
+  2) rsyslog 재시작: sudo systemctl restart rsyslog
+설명: 로그 중앙화와 보존 정책 확립은 사고 대응을 돕습니다."
+      ;;
+    U-66)
+      remed="권장 조치:
+  1) /var/log과 주요 로그 파일의 소유/권한 확인 및 제한: sudo chmod 640 /var/log/<logfile>; sudo chown root:root /var/log/<logfile>
+  2) 중요 로그에 대한 접근 제어 및 백업 정책 수립
+설명: 로그 파일 무결성 및 접근제한 중요."
+      ;;
+    U-67)
+      remed="권장 조치:
+  1) /etc/logrotate.conf 및 /etc/logrotate.d/ 정책 검토(주기, 보관 수, 압축 유무)
+  2) 테스트: sudo logrotate -d /etc/logrotate.conf
+설명: 로그가 과도하게 커져서 손실/디스크문제를 일으키지 않도록 관리."
       ;;
     U-68)
-      remed="권장 조치:\n  1) faillog 또는 audit 설정 확인, 없다면 shadow-utils 패키지 설치 고려: sudo dnf install -y shadow-utils\n  2) 실패 로그 보존/경고 설정 검토\n  설명: 로그인 실패 로그는 침해 탐지의 기초 자료입니다."
+      remed="권장 조치:
+  1) faillog/lastb 동작 확인, 필요 시 shadow-utils 설치: sudo dnf install -y shadow-utils
+  2) 실패로그를 모니터링하고 알림 설정(예: fail2ban 연동) 검토
+설명: 로그인 실패 기록은 침해 시도 감지의 핵심."
       ;;
     U-69)
-      remed="권장 조치:\n  1) sudo 로그 파일을 지정하려면 /etc/sudoers(또는 /etc/sudoers.d/)에 Defaults logfile=\"/var/log/sudo.log\" 추가\n     예: sudo visudo\n  2) sudo 로그가 저장되는지 및 권한(600 root:root) 확인\n  설명: sudo 사용 이력은 감사 및 사고 대응에 중요합니다."
+      remed="권장 조치:
+  1) /etc/sudoers 편집(`visudo`) 후 Defaults logfile=\"/var/log/sudo.log\" 추가
+  2) 파일 권한 설정: sudo touch /var/log/sudo.log; sudo chown root:root /var/log/sudo.log; sudo chmod 600 /var/log/sudo.log
+설명: sudo 이력은 감사/포렌식에 중요."
       ;;
     U-70)
-      remed="권장 조치:\n  1) auditd 설치 및 활성화: sudo dnf install -y audit; sudo systemctl enable --now auditd\n  2) /etc/audit/auditd.conf에서 로그 크기/회전 등 설정 검토\n  3) 중요한 규칙 설치(예: 사용자권한 변경, sshd 이벤트 등)\n  설명: 감사 로그는 포렌식/규정준수를 위해 필수입니다."
+      remed="권장 조치:
+  1) auditd 설치 및 활성화: sudo dnf install -y audit; sudo systemctl enable --now auditd
+  2) /etc/audit/audit.rules 또는 /etc/audit/rules.d/에 핵심 규칙 추가(예: 권한 변경, passwd 파일 액세스 등)
+  3) 로그 회전/저장 정책 검토
+설명: 감사 로그는 규정준수/포렌식에 필수."
       ;;
     *)
-      # 기본 권고 메시지(모르는 항목)
       if [ "$status" = "PASS" ]; then
         remed=""
       else
-        remed="권장 조치: 이 항목은 운영정책에 따라 수동 검토가 필요합니다. 관련 설정 파일/서비스를 점검하고, 조직 보안정책에 따라 조치하세요."
+        remed="권장 조치: 운영정책에 따라 수동 검토 및 조치 필요. 관련 구성파일/서비스를 확인하세요."
       fi
       ;;
   esac
 
   printf "%s" "$remed"
 }
+# --- end of get_remediation() ---
 
 # small helpers
 file_exists(){ [ -e "$1" ]; }
